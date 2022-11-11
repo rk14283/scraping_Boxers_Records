@@ -2,6 +2,8 @@ const axios = require('axios')
 const { JSDOM } = require('jsdom')
 const fs = require('fs')
 
+
+
 //breaking from 2 loops
 
 function findRecordTable(tables){
@@ -20,9 +22,9 @@ function findRecordTable(tables){
 }
 
 
-async function scrape(){
+async function scrapeRecordTable(url){
     //console.log('HI'); 
-    const url = "https://en.wikipedia.org/wiki/Sugar_Ray_Robinson"; 
+   
     const response = await axios.get(url);
     const html = response.data;  
     //console.log(html); 
@@ -78,18 +80,35 @@ async function scrape(){
         Locatin: fightLocation, 
         Notes: remarks
     }; 
-    record.push(sugarRayRecord)
     //console.log(sugarRayRecord)
-    
-}  
+    record.push(sugarRayRecord)
 
-  
-  console.log(record);
-  fs.writeFileSync("sugarRayRecord.json", JSON.stringify(record)); 
+        
+}  
+ // fs.writeFileSync("sugarRayRecord.json", JSON.stringify(record)); 
   //const recordBoxer = url.match(/^([^0-9]*)$/)[0];  
   //fs.writeFileSync(`${recordBoxer}.json`, JSON.stringify(record));
+  //console.log(data)
   
      
 }
 
-scrape()
+scrapeRecordTable("https://en.wikipedia.org/wiki/Sugar_Ray_Robinson")
+
+
+async function scrapeChampions() {
+    const response = await axios.get("https://en.wikipedia.org/wiki/List_of_world_welterweight_boxing_champions");
+    const html = response.data;  
+    const jsdom = new JSDOM(html)
+    const document = jsdom.window.document; 
+    const tables = document.querySelectorAll("table");
+    const championTables = [];
+
+    for(table of tables){
+        if(table.querySelectorAll('th').textContent.includes('Date won')){
+        championTables.push(table)
+        }   
+        }
+    }
+
+scrapeChampions()
