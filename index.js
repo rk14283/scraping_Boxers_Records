@@ -4,6 +4,8 @@ const fs = require('fs')
 
 
 
+
+
 //breaking from 2 loops
 
 function findRecordTable(tables){
@@ -33,12 +35,12 @@ async function scrapeRecordTable(url){
    // console.log(document); 
     const tables = document.querySelectorAll("table");
     let tableToScrape =  findRecordTable(tables); 
-    if (!tableToScrape) return console.log("Table not found for", url)
-    console.log(tableToScrape); 
+    if (!tableToScrape) return //console.log("Table not found for", url)
+   // console.log(tableToScrape); 
     
     //headings operators 
     const [headings, ...rows] = tableToScrape.querySelectorAll('tr'); 
-    console.log(rows)
+    //console.log(rows)
     //202 for 201 fights and heading 
     //console.log(rows.length)
 
@@ -96,6 +98,23 @@ async function scrapeRecordTable(url){
 scrapeRecordTable("https://en.wikipedia.org/wiki/Sugar_Ray_Robinson")
 
 
+
+function findChampionsTable(tables){
+    for(table of tables){
+        const headings = table.querySelectorAll("th")
+        for (heading of headings){
+            //getting the table with No. and there is only 1
+            if(heading.textContent.includes("Name")){
+                return table 
+            }
+    
+            }
+        }
+        return null; 
+    }
+
+
+
 async function scrapeChampions() {
     const response = await axios.get("https://en.wikipedia.org/wiki/List_of_world_welterweight_boxing_champions");
     const html = response.data;  
@@ -104,11 +123,69 @@ async function scrapeChampions() {
     const tables = document.querySelectorAll("table");
     const championTables = [];
 
-    for(table of tables){
-        if(table.querySelectorAll('th').textContent.includes('Date won')){
-        championTables.push(table)
-        }   
+ 
+    for (championTable of championTables){
+        //console.log(championTable)
+        const body = championTable.querySelector('tbody'); 
+        //const rows = body.querySelector('tr')
+        const rows = body.querySelector('tr')?.textContent; 
+        const data = body.querySelector('td')?.textContent;
+        console.log(rows.length); 
+        //these are ths 
+        console.log(rows);
+        console.log(data)
+
+
+        for (row of rows){
+        const championCell = row.querySelectorAll("td")?.textContent;
+        console.log(championCell)
+
+        
+        if(championCell){
+        const link = championCell.querySelector('a')?.href; 
+        console.log(link)
         }
+
+
+        } 
     }
 
+//     for (table of tables){
+//         //if ((table.querySelector("th").textContent.includes("Date won"))) {
+//             championTables.push(table); 
+//         }
+//        // console.log(table)
+//         console.log(championTables)
+
+//     } 
+
+    
+//         // if(table.querySelectorAll('th')){
+//         //if(table.querySelectorAll('th').textContent.includes('Date won')){
+//         // //console.log(table)
+//         // }   
+//         let tableToScrape =  findChampionsTable(championTables); 
+//         //if (!tableToScrape) return console.log("Table not found for")
+//         //console.log(tableToScrape)
+
+//          const [headings, ...rows] = championTables.querySelectorAll('tr'); 
+
+//         for (row of rows){
+//             //if you get undefined and there is one element do text content, if it is a node list then loop
+//             const [DateWon, DateLost, Name, Notes] = 
+//             row.querySelectorAll('td')
+
+//             const winDate = DateWon.textContent;
+//             const lossDate = DateLost.textContent; 
+//             const Fightername = Name.textContent; 
+//             const matchNotes = Notes.textContent; 
+
+//             ////problem here is that it is only selecting 1 table 
+//             console.log(winDate,lossDate,Fightername,matchNotes)
+
+//    }
+}
 scrapeChampions()
+
+
+
