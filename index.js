@@ -141,6 +141,13 @@ async function scrapeChampions() {
 
 
         const [headings, ...rows] = tableToScrape.querySelectorAll('tr'); 
+        
+        fighterLink = []
+            for (row of rows){
+            const wikilink = row.querySelector("a")?.href 
+            fighterLink.push(wikilink)
+        }
+        console.log(fighterLink)
 
         for (row of rows){
             //if you get undefined and there is one element do text content, if it is a node list then loop
@@ -161,7 +168,7 @@ async function scrapeChampions() {
                 Notes: matchNotes
             }
             championTables .push(worldClaimants)
-            console.log(worldClaimants)
+            //console.log(worldClaimants)
   
            
 
