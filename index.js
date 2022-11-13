@@ -6,6 +6,7 @@ const fs = require('fs')
 
 
 
+
 //breaking from 2 loops
 
 function findRecordTable(tables){
@@ -104,7 +105,7 @@ function findChampionsTable(tables){
         const headings = table.querySelectorAll("th")
         for (heading of headings){
             //getting the table with No. and there is only 1
-            if(heading.textContent.includes("Name")){
+            if(heading.textContent.includes("Date won")){
                 return table 
             }
     
@@ -123,69 +124,122 @@ async function scrapeChampions() {
     const tables = document.querySelectorAll("table");
     const championTables = [];
 
- 
-    for (championTable of championTables){
-        //console.log(championTable)
-        const body = championTable.querySelector('tbody'); 
-        //const rows = body.querySelector('tr')
-        const rows = body.querySelector('tr')?.textContent; 
-        const data = body.querySelector('td')?.textContent;
-        console.log(rows.length); 
-        //these are ths 
-        console.log(rows);
-        console.log(data)
 
+
+    // for (table of tables){
+    //     if ((table.querySelector("th").textContent.includes("Date won"))) {
+    //         championTables.push(table); 
+    //     }
+        //console.log(table)
+        //console.log(championTables)
+
+    // } 
+    let tableToScrape =  findChampionsTable(tables); 
+        if (!tableToScrape) return //console.log("Table not found for")
+        //console.log(tableToScrape)
+
+
+
+        const [headings, ...rows] = tableToScrape.querySelectorAll('tr'); 
 
         for (row of rows){
-        const championCell = row.querySelectorAll("td")?.textContent;
-        console.log(championCell)
+            //if you get undefined and there is one element do text content, if it is a node list then loop
+            const [DateWon, DateLost, Name, Notes] = 
+            row.querySelectorAll('td')
 
-        
-        if(championCell){
-        const link = championCell.querySelector('a')?.href; 
-        console.log(link)
-        }
+            const winDate = DateWon.textContent;
+            const lossDate = DateLost.textContent; 
+            const Fightername = Name.textContent; 
+            const matchNotes = Notes.textContent; 
+
+            ////problem here is that it is only selecting 1 table 
+            //console.log(winDate,lossDate,Fightername,matchNotes)
+            const worldClaimants ={
+                DateWon: winDate, 
+                DateLost: lossDate, 
+                Name: Fightername,
+                Notes: matchNotes
+            }
+            championTables .push(worldClaimants)
+            console.log(worldClaimants)
+  
+           
+
+                   } 
+                  
+                }
+
+scrapeChampions()
 
 
-        } 
-    }
+                //    for (championTable  of championTables){
+                //     const body = championTable.querySelectorAll('tbody'); 
+                //     ////if I do const rows = championTable.querySelector('tr')?.textcontent I get 26 in each row which is not correct
+                //     const rows = championTable.querySelector('tr')?.textcontent; 
+                //     //I am getting 1 with this which is okay 
+                //     //console.log(body.length)
+                //     //console.log(rows.length); 
+                //     //console.log(body)
+                //     //console.log(rows)
+                //     for (item in body){
+                //         const rows = championTable.querySelector('td')?.textcontent; 
+                         
+                //     }
+                //     console.log(rows)
+                // }       
 
 //     for (table of tables){
-//         //if ((table.querySelector("th").textContent.includes("Date won"))) {
-//             championTables.push(table); 
-//         }
-//        // console.log(table)
-//         console.log(championTables)
+//         if (table.querySelector("th").textContent.includes("Date won")) {
+//            championTables.push(table);
+//    }
+//   // console.log(championTables)
+// }
+//     
+//     }
 
-//     } 
+
+
+
+
+
+ 
+    // for (championTable of championTables){
+    //     //console.log(championTable)
+    //     const body = championTable.querySelector('tbody'); 
+    //     //const rows = body.querySelector('tr')
+    //     const rows = body.querySelector('tr')?.textContent; 
+    //     const data = body.querySelector('td')?.textContent;
+    //     console.log(rows.length); 
+    //     //these are ths 
+    //     console.log(rows);
+    //     console.log(data);
+
+
+        // for (row of rows){
+        // const championCell = row.querySelectorAll("td")?.textContent;
+        // console.log(championCell)
+
+        
+        // if(championCell){
+        // const link = championCell.querySelector('a')?.href; 
+        // console.log(link)
+        // }
+
+
+
+    
+
 
     
 //         // if(table.querySelectorAll('th')){
 //         //if(table.querySelectorAll('th').textContent.includes('Date won')){
 //         // //console.log(table)
 //         // }   
-//         let tableToScrape =  findChampionsTable(championTables); 
-//         //if (!tableToScrape) return console.log("Table not found for")
-//         //console.log(tableToScrape)
-
-//          const [headings, ...rows] = championTables.querySelectorAll('tr'); 
-
-//         for (row of rows){
-//             //if you get undefined and there is one element do text content, if it is a node list then loop
-//             const [DateWon, DateLost, Name, Notes] = 
-//             row.querySelectorAll('td')
-
-//             const winDate = DateWon.textContent;
-//             const lossDate = DateLost.textContent; 
-//             const Fightername = Name.textContent; 
-//             const matchNotes = Notes.textContent; 
-
-//             ////problem here is that it is only selecting 1 table 
-//             console.log(winDate,lossDate,Fightername,matchNotes)
-
+//         
+//          
 //    }
-}
-scrapeChampions()
+// }
+
 
 
 
