@@ -1,252 +1,142 @@
-const axios = require('axios')
-const { JSDOM } = require('jsdom')
-const fs = require('fs')
-
-
-
-
-
+const axios = require("axios");
+const { JSDOM } = require("jsdom");
+const fs = require("fs");
 
 //breaking from 2 loops
 
-function findRecordTable(tables){
-    //this function returns table with th
-    for(table of tables){
-        const headings = table.querySelectorAll("th")
-        for (heading of headings){
-        //getting the table with No. and there is only 1
-        if(heading.textContent.includes("No.")){
-            return table 
-        }
-
-        }
+function findRecordTable(tables) {
+  //this function returns table with th
+  for (table of tables) {
+    const headings = table.querySelectorAll("th");
+    for (heading of headings) {
+      //getting the table with No. and there is only 1
+      if (heading.textContent.includes("No.")) {
+        return table;
+      }
     }
-    return null; 
+  }
+  return null;
 }
 
+async function scrapeRecordTable(url) {
+  //console.log('HI');
 
-async function scrapeRecordTable(url){
-    //console.log('HI'); 
-   
-    const response = await axios.get(url);
-    const html = response.data;  
-    //console.log(html); 
-    const jsdom = new JSDOM(html)
-    const document = jsdom.window.document; 
-   // console.log(document); 
-    const tables = document.querySelectorAll("table");
-    let tableToScrape =  findRecordTable(tables); 
-    if (!tableToScrape) return //console.log("Table not found for", url)
-   // console.log(tableToScrape); 
-    
-    //headings operators 
-    const [headings, ...rows] = tableToScrape.querySelectorAll('tr'); 
-    //console.log(rows)
-    //202 for 201 fights and heading 
-    //console.log(rows.length)
+  const response = await axios.get(url);
+  const html = response.data;
+  //console.log(html);
+  const jsdom = new JSDOM(html);
+  const document = jsdom.window.document;
+  // console.log(document);
+  const tables = document.querySelectorAll("table");
+  let tableToScrape = findRecordTable(tables);
+  if (!tableToScrape) return; //console.log("Table not found for", url)
+  // console.log(tableToScrape);
 
-    let record = []
+  //headings operators
+  const [headings, ...rows] = tableToScrape.querySelectorAll("tr");
+  //console.log(rows)
+  //202 for 201 fights and heading
+  //console.log(rows.length)
 
-    for (row of rows){
-        //if you get undefined and there is one element do text content, if it is a node list then loop
-        const [Number, Result, Record, Opponent, Type,RoundTime, Date, Age, Location, Notes] = 
-        row.querySelectorAll('td')
+  let record = [];
 
-        //all opponents don't have links so better not do a 
-        //const opponentName = Opponent.querySelector('td')?.textContent; 
-        //const opponentName = Opponent.querySelector('a')?.textContent; 
-        const opponentName = Opponent.textContent;
-        //console.log(opponentName)
-        //console.log(opponentName.length)
-        const serialNumber = (Number.textContent); 
-        const fightResult = (Result.textContent)
-        const tally = (Record.textContent)
-        const foughtAgainst = (Opponent.textContent)
-        const winType = (Type.textContent)
-        const endRound = (RoundTime.textContent)
-        const fightDate = (Date.textContent)
-        const fighterAge = (Age.textContent)
-        const fightLocation = (Location.textContent)
-        const remarks = (Notes.textContent)
+  for (row of rows) {
+    //if you get undefined and there is one element do text content, if it is a node list then loop
+    const [
+      Number,
+      Result,
+      Record,
+      Opponent,
+      Type,
+      RoundTime,
+      Date,
+      Age,
+      Location,
+      Notes,
+    ] = row.querySelectorAll("td");
 
-        //console.log(serialNumber, fightResult,tally,foughtAgainst, winType,endRound,fightDate,fighterAge,fightLocation,remarks); 
- 
-    const sugarRayRecord = {
-        No: serialNumber,
-        Result: fightResult,
-        Record: tally, 
-        Opponent: foughtAgainst,
-        Type:    winType,
-        Round_Time: endRound, 
-        Date: fightDate, 
-        Age: fighterAge, 
-        Locatin: fightLocation, 
-        Notes: remarks
-    }; 
+    //all opponents don't have links so better not do a
+    //const opponentName = Opponent.querySelector('td')?.textContent;
+    //const opponentName = Opponent.querySelector('a')?.textContent;
+    const opponentName = Opponent.textContent;
+    //console.log(opponentName)
+    //console.log(opponentName.length)
+    const serialNumber = Number?.textContent;
+    const fightResult = Result?.textContent;
+    const tally = Record?.textContent;
+    const foughtAgainst = Opponent?.textContent;
+    const winType = Type?.textContent;
+    const endRound = RoundTime?.textContent;
+    const fightDate = Date?.textContent;
+    const fighterAge = Age?.textContent;
+    const fightLocation = Location?.textContent;
+    const remarks = Notes?.textContent;
+
+    //console.log(serialNumber, fightResult,tally,foughtAgainst, winType,endRound,fightDate,fighterAge,fightLocation,remarks);
+
+    const boxerRecord = {
+      No: serialNumber,
+      Result: fightResult,
+      Record: tally,
+      Opponent: foughtAgainst,
+      Type: winType,
+      Round_Time: endRound,
+      Date: fightDate,
+      Age: fighterAge,
+      Locatin: fightLocation,
+      Notes: remarks,
+    };
     //console.log(sugarRayRecord)
-    record.push(sugarRayRecord)
+    record.push(boxerRecord);
+  }
 
-        
-}  
- // fs.writeFileSync("sugarRayRecord.json", JSON.stringify(record)); 
-  //const recordBoxer = url.match(/^([^0-9]*)$/)[0];  
-  //fs.writeFileSync(`${recordBoxer}.json`, JSON.stringify(record));
-  //console.log(data)
-  
-     
+  ////regex tested
+  // const recordBoxer = url.match(/\d{4}/);
+  //const recordBoxer = url.match(/^([^0-9]*)$/);
+  // const recordBoxer = url.match(\/([\w%]+))
+
+  const recordBoxer = url.split("https://en.wikipedia.org/wiki/");
+  fs.writeFileSync(`${recordBoxer}.json`, JSON.stringify(record));
+
+  //console.log(record);
 }
-
-scrapeRecordTable("https://en.wikipedia.org/wiki/Sugar_Ray_Robinson")
-
-
-
-function findChampionsTable(tables){
-    for(table of tables){
-        const headings = table.querySelectorAll("th")
-        for (heading of headings){
-            //getting the table with No. and there is only 1
-            if(heading.textContent.includes("Date won")){
-                return table 
-            }
-    
-            }
-        }
-        return null; 
-    }
-
-
 
 async function scrapeChampions() {
-    const response = await axios.get("https://en.wikipedia.org/wiki/List_of_world_welterweight_boxing_champions");
-    const html = response.data;  
-    const jsdom = new JSDOM(html)
-    const document = jsdom.window.document; 
-    const tables = document.querySelectorAll("table");
-    const championTables = [];
+  const response = await axios.get(
+    "https://en.wikipedia.org/wiki/List_of_world_welterweight_boxing_champions"
+  );
+  const html = response.data;
+  const jsdom = new JSDOM(html);
+  const document = jsdom.window.document;
+  const tables = document.querySelectorAll("table");
+  const championTables = [];
 
+  for (table of tables) {
+    if (table.querySelector("th").textContent.includes("Date won")) {
+      championTables.push(table);
+    }
+  }
+  //console.log(championTables);
 
+  const champions = [];
+  for (tableToScrape of championTables) {
+    const [headings, ...rows] = tableToScrape.querySelectorAll("tr");
+    for (row of rows) {
+      const cells = row.querySelectorAll("td");
+      //fighterLink.push(wikilink);
+      //console.log("cells", cells[2]?.textContent);
+      const nameCell = cells[2];
+      const link = nameCell?.querySelectorAll("a")[1];
+      // console.log("link", link?.href);
+      if (link) {
+        champions.push(link?.href);
+      }
+    }
+  }
+  //console.log(champions);
+  //   for (const link of champions) {
+  //     scrapeRecordTable(`https://en.wikipedia.org${link}`);
+  //   }
+}
 
-    // for (table of tables){
-    //     if ((table.querySelector("th").textContent.includes("Date won"))) {
-    //         championTables.push(table); 
-    //     }
-        //console.log(table)
-        //console.log(championTables)
-
-    // } 
-    let tableToScrape =  findChampionsTable(tables); 
-        if (!tableToScrape) return //console.log("Table not found for")
-        //console.log(tableToScrape)
-
-
-
-        const [headings, ...rows] = tableToScrape.querySelectorAll('tr'); 
-        
-        fighterLink = []
-            for (row of rows){
-            const wikilink = row.querySelector("a")?.href 
-            fighterLink.push(wikilink)
-        }
-        console.log(fighterLink)
-
-        for (row of rows){
-            //if you get undefined and there is one element do text content, if it is a node list then loop
-            const [DateWon, DateLost, Name, Notes] = 
-            row.querySelectorAll('td')
-
-            const winDate = DateWon.textContent;
-            const lossDate = DateLost.textContent; 
-            const Fightername = Name.textContent; 
-            const matchNotes = Notes.textContent; 
-
-            ////problem here is that it is only selecting 1 table 
-            //console.log(winDate,lossDate,Fightername,matchNotes)
-            const worldClaimants ={
-                DateWon: winDate, 
-                DateLost: lossDate, 
-                Name: Fightername,
-                Notes: matchNotes
-            }
-            championTables .push(worldClaimants)
-            //console.log(worldClaimants)
-  
-           
-
-                   } 
-                  
-                }
-
-scrapeChampions()
-
-
-                //    for (championTable  of championTables){
-                //     const body = championTable.querySelectorAll('tbody'); 
-                //     ////if I do const rows = championTable.querySelector('tr')?.textcontent I get 26 in each row which is not correct
-                //     const rows = championTable.querySelector('tr')?.textcontent; 
-                //     //I am getting 1 with this which is okay 
-                //     //console.log(body.length)
-                //     //console.log(rows.length); 
-                //     //console.log(body)
-                //     //console.log(rows)
-                //     for (item in body){
-                //         const rows = championTable.querySelector('td')?.textcontent; 
-                         
-                //     }
-                //     console.log(rows)
-                // }       
-
-//     for (table of tables){
-//         if (table.querySelector("th").textContent.includes("Date won")) {
-//            championTables.push(table);
-//    }
-//   // console.log(championTables)
-// }
-//     
-//     }
-
-
-
-
-
-
- 
-    // for (championTable of championTables){
-    //     //console.log(championTable)
-    //     const body = championTable.querySelector('tbody'); 
-    //     //const rows = body.querySelector('tr')
-    //     const rows = body.querySelector('tr')?.textContent; 
-    //     const data = body.querySelector('td')?.textContent;
-    //     console.log(rows.length); 
-    //     //these are ths 
-    //     console.log(rows);
-    //     console.log(data);
-
-
-        // for (row of rows){
-        // const championCell = row.querySelectorAll("td")?.textContent;
-        // console.log(championCell)
-
-        
-        // if(championCell){
-        // const link = championCell.querySelector('a')?.href; 
-        // console.log(link)
-        // }
-
-
-
-    
-
-
-    
-//         // if(table.querySelectorAll('th')){
-//         //if(table.querySelectorAll('th').textContent.includes('Date won')){
-//         // //console.log(table)
-//         // }   
-//         
-//          
-//    }
-// }
-
-
-
-
+scrapeChampions();
